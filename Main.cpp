@@ -58,6 +58,7 @@ int main()
 	int max;
 	cin >> max;
 	HANDLE* hThreads = new HANDLE[max];
+	HANDLE* hEv= new HANDLE[max];
 	params* p = new params[max];
 	for (int i = 0; i < max; i++)
 	{
@@ -75,12 +76,13 @@ int main()
 			cerr << "Failed to create end event!\n";
 			return 1;
 		}
-		p[i].hCantEvent = CreateEvent(NULL, FALSE, FALSE, NULL);
+		p[i].hCantEvent = CreateEvent(NULL, TRUE, FALSE, NULL);
 		if (p[i].hCantEvent == NULL)
 		{
 			cerr << "Failed to create cant event!\n";
 			return 1;
 		}
+		hEv[i] = p[i].hCantEvent;
 		hThreads[i] = CreateThread(NULL, 0, marker, &p[i], 0, NULL);
 		if (hThreads[i] == NULL)
 		{
@@ -94,10 +96,7 @@ int main()
 	bool* a = new bool[max];
 	memset(a, false, sizeof(bool) * max);
 	while (true) {
-		for (int i = 0; i < max; i++) {
-			if (a[i] == false)
-				WaitForSingleObject(p[i].hCantEvent, INFINITE);
-		}
+		WaitForMultipleObjects(max, hEv, TRUE, INFINITE);
 		cout << "array after marks:" << endl;
 		for (int i = 0; i < n; i++) {
 			cout << arr[i] << " ";
@@ -117,6 +116,7 @@ int main()
 		for (int i = 0; i < max; i++) {
 			if (a[i] == 0) {
 				SetEvent(p[i].hStartEvent);
+				ResetEvent(p[i].hCantEvent);
 				allThreadEnd = 0;
 			}
 		}
