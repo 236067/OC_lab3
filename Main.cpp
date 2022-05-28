@@ -93,7 +93,8 @@ int main()
 	for (int i = 0; i < max; i++) {
 		SetEvent(p[i].hStartEvent);
 	}
-	bool* a = new bool[max];
+	bool* a = judge;
+	judge =new bool[max];
 	memset(a, false, sizeof(bool) * max);
 	while (true) {
 		WaitForMultipleObjects(max, hEv, TRUE, INFINITE);
@@ -112,15 +113,15 @@ int main()
 			cout << arr[i] << " ";
 		}
 		cout << endl;
-		bool allThreadEnd = 1;
+		bool allThreadEnd = true;
 		for (int i = 0; i < max; i++) {
 			if (a[i] == 0) {
 				SetEvent(p[i].hStartEvent);
 				ResetEvent(p[i].hCantEvent);
-				allThreadEnd = 0;
+				allThreadEnd = false;
 			}
 		}
-		if (allThreadEnd == 1) {
+		if (allThreadEnd == true) {
 			cout << "all threads ended"; break;
 		}
 	}
